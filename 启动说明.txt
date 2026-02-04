@@ -1,0 +1,105 @@
+教室预约系统 - 启动说明
+========================
+
+前置要求：
+1. Python 3.8+ 已安装
+2. Node.js 14+ 已安装
+3. MySQL 数据库已安装并运行
+
+步骤 1: 配置环境变量
+------------------
+1. 进入 backend 目录，复制环境变量模板：
+   cd backend
+   copy .env.example .env   (Windows)
+   cp .env.example .env     (Linux/Mac)
+
+2. 编辑 .env 文件，修改数据库密码：
+   DATABASE_PASSWORD=你的MySQL密码
+
+3. 如果需要，修改其他配置项（详见 backend/CONFIG.md）
+
+步骤 2: 配置数据库
+------------------
+1. 打开 MySQL，创建数据库：
+   CREATE DATABASE classroom_reservation CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
+
+2. 或者直接运行 SQL 脚本：
+   mysql -u root -p < database/create_database.sql
+
+步骤 3: 安装后端依赖
+------------------
+打开终端，进入 backend 目录：
+cd backend
+pip install -r requirements.txt
+
+步骤 4: 安装和启动 Redis
+------------------
+1. 安装 Redis（如果还没有安装）：
+   Windows: choco install redis-64
+   或从 https://github.com/microsoftarchive/redis/releases 下载
+
+2. 启动 Redis：
+   redis-server
+
+3. 测试 Redis 连接：
+   redis-cli ping
+   （应该返回 PONG）
+
+步骤 5: 初始化数据库
+------------------
+在 backend 目录下运行：
+python manage.py makemigrations
+python manage.py migrate
+python manage.py createsuperuser
+
+步骤 6: 启动后端服务
+------------------
+python manage.py runserver
+
+后端将运行在: http://localhost:8000
+
+步骤 7: 安装前端依赖
+------------------
+打开新的终端，进入 frontend 目录：
+cd frontend
+npm install
+
+步骤 8: 启动前端服务
+------------------
+npm run serve
+
+前端将运行在: http://localhost:8080
+
+步骤 9: 访问系统
+------------------
+在浏览器中打开: http://localhost:8080
+
+默认账户：
+- 使用步骤5中创建的超级用户登录
+
+常见问题：
+------------------
+1. 如果提示缺少 cryptography 包：
+   pip install cryptography
+
+2. 如果提示缺少 mysqlclient，在 Windows 上可以：
+   pip install mysqlclient
+   或下载 wheel 文件安装
+
+3. 如果 MySQL 连接失败，检查：
+   - MySQL 服务是否运行
+   - .env 文件中的数据库配置是否正确
+   - 数据库名称、用户名、密码是否正确
+   - 防火墙设置
+
+4. 如果 Redis 连接失败，检查：
+   - Redis 服务是否运行（redis-cli ping 测试）
+   - .env 文件中的 REDIS_URL 是否正确
+
+5. 如果前端无法连接后端，检查：
+   - 后端是否在 8000 端口运行
+   - CORS 配置是否正确
+
+6. 如果提示 SECRET_KEY 错误：
+   - 确保已经复制 .env.example 为 .env
+   - 检查 .env 文件是否在 backend 目录下

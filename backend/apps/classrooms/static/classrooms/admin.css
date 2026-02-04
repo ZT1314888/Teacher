@@ -1,0 +1,5 @@
+/* 调整后台教室类型下拉框中文字的垂直居中与高度 */
+select#id_classroom_type {
+  height: 32px;
+  line-height: 32px;
+}

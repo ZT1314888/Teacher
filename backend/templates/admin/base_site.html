@@ -1,0 +1,15 @@
+﻿{% extends 'admin/base.html' %}
+{% load static %}
+
+{% block title %}{{ title }} | 教室预约管理系统{% endblock %}
+
+{% block branding %}
+<h1 id='site-name'>
+    <a href='{% url 'admin:index' %}'>教室预约管理系统</a>
+</h1>
+{% endblock %}
+
+{% block extrahead %}
+{{ block.super }}
+<link rel="icon" type="image/x-icon" href="{% static 'admin/img/icon-changelink.svg' %}">
+{% endblock %}
