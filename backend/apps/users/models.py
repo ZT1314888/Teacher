@@ -7,12 +7,12 @@ class User(AbstractUser):
         ('teacher', '教师'),
         ('student', '学生'),
     )
-    
+
     role = models.CharField(max_length=10, choices=ROLE_CHOICES, default='student', verbose_name='角色')
     phone = models.CharField(max_length=11, blank=True, null=True, verbose_name='手机号')
     department = models.ForeignKey('Department', on_delete=models.SET_NULL, null=True, blank=True, verbose_name='院系')
     is_backend_registered = models.BooleanField(default=False, verbose_name='后端注册')
-    
+
     class Meta:
         db_table = 'users'
         verbose_name = '用户'
@@ -20,10 +20,14 @@ class User(AbstractUser):
 
     def __str__(self):
         return f"{self.username} ({self.get_role_display()})"
-    
+
     def save(self, *args, **kwargs):
+        # 超级用户自动设置为 admin 角色
+        if self.is_superuser:
+            self.role = 'admin'
+            self.is_staff = True
         # 确保只有管理员才能访问后台
-        if self.role == 'admin':
+        elif self.role == 'admin':
             self.is_staff = True
         else:
             self.is_staff = False

@@ -20,7 +20,7 @@
             <el-icon><School /></el-icon>
             <span>教室列表</span>
           </el-menu-item>
-          <el-menu-item index="/reservations">
+          <el-menu-item index="/booking">
             <el-icon><Calendar /></el-icon>
             <span>预约教室</span>
           </el-menu-item>
@@ -105,11 +105,11 @@ export default {
 }
 
 .el-header {
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  background: linear-gradient(135deg, #0F4C3A 0%, #1a6b54 100%);
   color: white;
   display: flex;
   align-items: center;
-  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+  box-shadow: 0 2px 10px rgba(15, 76, 58, 0.15);
 }
 
 .header-content {
@@ -136,13 +136,13 @@ export default {
 }
 
 .el-aside {
-  background-color: #f8fafc;
-  border-right: 1px solid #e2e8f0;
+  background-color: #f9fafb;
+  border-right: 1px solid #e5e7eb;
 }
 
 :deep(.el-menu) {
   border-right: none;
-  background-color: #f8fafc;
+  background-color: #f9fafb;
 }
 
 :deep(.el-menu-item) {
@@ -152,12 +152,12 @@ export default {
 }
 
 :deep(.el-menu-item:hover) {
-  background-color: #e0e7ff !important;
-  color: #667eea !important;
+  background-color: #e0f2ea !important;
+  color: #0F4C3A !important;
 }
 
 :deep(.el-menu-item.is-active) {
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%) !important;
+  background: linear-gradient(135deg, #0F4C3A 0%, #1a6b54 100%) !important;
   color: white !important;
 }
 
@@ -168,16 +168,16 @@ export default {
 }
 
 :deep(.el-sub-menu__title:hover) {
-  background-color: #e0e7ff !important;
-  color: #667eea !important;
+  background-color: #e0f2ea !important;
+  color: #0F4C3A !important;
 }
 
 :deep(.el-sub-menu.is-active .el-sub-menu__title) {
-  color: #667eea !important;
+  color: #0F4C3A !important;
 }
 
 .el-main {
-  background-color: #fff;
+  background-color: #f3f4f6;
   padding: 20px;
 }
 
