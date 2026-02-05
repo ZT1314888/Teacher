@@ -66,9 +66,9 @@ WSGI_APPLICATION = 'config.wsgi.application'
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.mysql',
-        'NAME': config('DATABASE_NAME', default='classroom_reservation'),
+        'NAME': config('DATABASE_NAME', default='Teacher'),
         'USER': config('DATABASE_USER', default='root'),
-        'PASSWORD': config('DATABASE_PASSWORD', default='root'),
+        'PASSWORD': config('DATABASE_PASSWORD', default='Wang123456.'),
         'HOST': config('DATABASE_HOST', default='localhost'),
         'PORT': config('DATABASE_PORT', default='3306'),
     }
