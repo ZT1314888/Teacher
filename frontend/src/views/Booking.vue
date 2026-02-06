@@ -1,16 +1,11 @@
 <template>
   <div class="min-h-screen bg-secondary-50 py-8">
-    <!-- 页面头部 -->
-    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mb-8">
-      <div class="flex items-center justify-between">
-        <div>
-          <h1 class="text-3xl font-bold text-gray-900">教室预约</h1>
-          <p class="mt-2 text-gray-600">选择您需要的教室和时间</p>
-        </div>
-        <div class="flex items-center space-x-4">
+    <PageHeader>
+      <template #actions>
+        <div class="flex items-center flex-wrap gap-4">
           <div class="flex items-center space-x-2 text-sm text-gray-600">
             <span class="w-2 h-2 bg-success rounded-full"></span>
-          <span>可用</span>
+            <span>可用</span>
           </div>
           <div class="flex items-center space-x-2 text-sm text-gray-600">
             <span class="w-2 h-2 bg-primary rounded-full"></span>
@@ -21,8 +16,8 @@
             <span>已占用</span>
           </div>
         </div>
-      </div>
-    </div>
+      </template>
+    </PageHeader>
 
     <!-- 主内容区 -->
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -38,39 +33,54 @@
               <!-- 步骤 1 -->
               <div class="flex items-start mb-6">
                 <div class="flex-shrink-0">
-                  <div class="w-8 h-8 rounded-full bg-primary text-white flex items-center justify-center text-sm font-medium">
-                    ✓
+                  <div
+                    class="w-8 h-8 rounded-full flex items-center justify-center text-sm font-medium transition-all"
+                    :class="getStepCircleClass(1)"
+                  >
+                    {{ isStepCompleted(1) ? '✓' : '1' }}
                   </div>
                 </div>
                 <div class="ml-4">
-                  <p class="text-sm font-medium text-gray-900">选择教室类型</p>
-                  <p class="text-xs text-gray-500 mt-1">{{ selectedClassroomType || '多媒体教室' }}</p>
+                  <p class="text-sm font-medium" :class="getStepTitleClass(1)">选择教室类型</p>
+                  <p class="text-xs mt-1" :class="getStepDescClass(1)">
+                    {{ selectedClassroomTypeLabel || '请选择教室类型' }}
+                  </p>
                 </div>
               </div>
 
               <!-- 步骤 2 -->
               <div class="flex items-start mb-6">
                 <div class="flex-shrink-0">
-                  <div class="w-8 h-8 rounded-full bg-primary text-white flex items-center justify-center text-sm font-medium ring-4 ring-accent">
-                    2
+                  <div
+                    class="w-8 h-8 rounded-full flex items-center justify-center text-sm font-medium transition-all"
+                    :class="getStepCircleClass(2)"
+                  >
+                    {{ isStepCompleted(2) ? '✓' : '2' }}
                   </div>
                 </div>
                 <div class="ml-4">
-                  <p class="text-sm font-medium text-gray-900">选择日期与时间</p>
-                  <p class="text-xs text-gray-500 mt-1">{{ selectedDate ? formatDate(selectedDate) : '请选择日期' }}</p>
+                  <p class="text-sm font-medium" :class="getStepTitleClass(2)">选择日期与时间</p>
+                  <p class="text-xs mt-1" :class="getStepDescClass(2)">
+                    {{ selectedDate && selectedTimeSlot ? `${formatDate(selectedDate)} ${selectedTimeSlot.time}` : '请选择日期与时间' }}
+                  </p>
                 </div>
               </div>
 
               <!-- 步骤 3 -->
               <div class="flex items-start">
                 <div class="flex-shrink-0">
-                  <div class="w-8 h-8 rounded-full bg-secondary-200 text-gray-500 flex items-center justify-center text-sm font-medium">
+                  <div
+                    class="w-8 h-8 rounded-full flex items-center justify-center text-sm font-medium transition-all"
+                    :class="getStepCircleClass(3)"
+                  >
                     3
                   </div>
                 </div>
                 <div class="ml-4">
-                  <p class="text-sm font-medium text-gray-500">确认与提交</p>
-                  <p class="text-xs text-gray-400 mt-1">填写预约信息</p>
+                  <p class="text-sm font-medium" :class="getStepTitleClass(3)">确认与提交</p>
+                  <p class="text-xs mt-1" :class="getStepDescClass(3)">
+                    {{ selectedClassroomId ? `已选教室：${selectedClassroomName}` : '填写预约信息' }}
+                  </p>
                 </div>
               </div>
             </div>
@@ -95,21 +105,38 @@
           <div class="card">
             <!-- 教室类型选择 -->
             <div v-if="currentStep === 1" class="mb-8">
-              <h2 class="text-xl font-semibold text-gray-900 mb-6">选择教室类型</h2>
+              <h2 class="text-xl font-semibold text-gray-900 mb-2">选择教室类型</h2>
+              <p class="text-sm text-gray-500 mb-6">
+                当前已选：
+                <span v-if="selectedClassroomTypeLabel" class="text-primary font-semibold">
+                  {{ selectedClassroomTypeLabel }}
+                </span>
+                <span v-else>未选择</span>
+              </p>
+              <p v-if="isCourseTypeLocked" class="text-sm text-primary font-semibold mb-6">
+                当前来自课程「{{ courseName || '指定课程' }}」，教室类型已锁定为：{{ lockedTypeLabel || selectedClassroomTypeLabel }}
+              </p>
               <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
                 <div
                   v-for="type in classroomTypes"
                   :key="type.value"
-                  @click="selectedClassroomType = type.value"
+                  @click="selectClassroomType(type.value)"
                   :class="[
-                    'classroom-card cursor-pointer p-6',
-                    selectedClassroomType === type.value ? 'ring-2 ring-primary' : ''
+                    'classroom-card classroom-type-card cursor-pointer p-6 relative',
+                    selectedClassroomType === type.value ? 'is-selected' : '',
+                    isCourseTypeLocked && selectedClassroomType !== type.value ? 'is-locked-out' : ''
                   ]"
                 >
                   <div class="text-center">
                     <div class="text-4xl mb-3">{{ type.icon }}</div>
                     <h3 class="font-semibold text-gray-900">{{ type.label }}</h3>
                     <p class="text-sm text-gray-500 mt-2">{{ type.description }}</p>
+                  </div>
+                  <div
+                    v-if="selectedClassroomType === type.value"
+                    class="selected-tip text-sm text-primary font-semibold mt-4 text-center"
+                  >
+                    当前预约将使用该类型筛选可用教室
                   </div>
                 </div>
               </div>
@@ -169,6 +196,7 @@
                     :class="[
                       'calendar-day relative',
                       date.isCurrentMonth ? '' : 'text-gray-300',
+                      date.isDisabled ? 'text-gray-300 cursor-not-allowed bg-gray-50 pointer-events-none' : '',
                       date.isSelected ? 'selected' : '',
                       date.isToday ? 'today' : ''
                     ]"
@@ -187,6 +215,7 @@
                 <h4 class="text-lg font-medium text-gray-900 mb-4">
                   {{ formatFullDate(selectedDate) }} - 可选时间段
                 </h4>
+                <p v-if="slotStatusLoading" class="text-sm text-gray-500 mb-4">正在同步后端可用性...</p>
                 <div class="grid grid-cols-3 md:grid-cols-5 gap-4 mb-8">
                   <div
                     v-for="slot in timeSlots"
@@ -194,13 +223,14 @@
                     @click="selectTimeSlot(slot)"
                     :class="[
                       'time-slot',
-                      slot.isOccupied ? 'occupied' : '',
+                      (slot.isOccupied || slot.isPast) ? 'occupied' : '',
+                      slot.isNoMatch ? 'no-match' : '',
                       slot.isSelected ? 'selected' : ''
                     ]"
                   >
                     <div class="font-medium">{{ slot.time }}</div>
                     <div class="text-xs mt-1">
-                      {{ slot.isOccupied ? '已占用' : '可用' }}
+                      {{ slot.isNoMatch ? '无匹配教室' : (slot.isPast ? '已过时' : (slot.isOccupied ? '已占用' : '可用')) }}
                     </div>
                   </div>
                 </div>
@@ -215,7 +245,7 @@
                   上一步
                 </button>
                 <button
-                  @click="currentStep = 3"
+                  @click="enterStep3"
                   :disabled="!selectedTimeSlot"
                   class="btn-primary"
                   :class="{ 'opacity-50 cursor-not-allowed': !selectedTimeSlot }"
@@ -234,7 +264,7 @@
                 <div class="grid grid-cols-2 gap-6">
                   <div>
                     <p class="text-sm text-gray-500 mb-1">教室类型</p>
-                    <p class="font-medium text-gray-900">{{ selectedClassroomType }}</p>
+                    <p class="font-medium text-gray-900">{{ selectedClassroomTypeLabel || '未选择' }}</p>
                   </div>
                   <div>
                     <p class="text-sm text-gray-500 mb-1">预约日期</p>
@@ -245,10 +275,36 @@
                     <p class="font-medium text-gray-900">{{ selectedTimeSlot?.time }}</p>
                   </div>
                   <div>
+                    <p class="text-sm text-gray-500 mb-1">所选教室</p>
+                    <p class="font-medium text-gray-900">{{ selectedClassroomName }}</p>
+                  </div>
+                  <div>
                     <p class="text-sm text-gray-500 mb-1">状态</p>
                     <span class="badge badge-success">待审核</span>
                   </div>
                 </div>
+              </div>
+
+              <!-- 具体教室选择 -->
+              <div class="mb-8">
+                <label class="block text-sm font-medium text-gray-700 mb-2">
+                  选择具体教室 <span class="text-danger">*</span>
+                </label>
+                <el-select
+                  v-model="selectedClassroomId"
+                  class="w-full"
+                  :loading="classroomsLoading"
+                  :disabled="classroomsLoading || availableClassrooms.length === 0"
+                  :placeholder="classroomsLoading ? '加载可选教室中...' : (availableClassrooms.length === 0 ? '暂无可用教室' : '请选择具体教室')"
+                  :no-data-text="classroomsLoading ? '加载可选教室中...' : '暂无可用教室'"
+                >
+                  <el-option
+                    v-for="room in availableClassrooms"
+                    :key="room.id"
+                    :label="`${room.name}（${room.building}栋${room.room_number}，容量${room.capacity}）`"
+                    :value="room.id"
+                  />
+                </el-select>
               </div>
 
               <!-- 预约用途 -->
@@ -288,11 +344,11 @@
                 </button>
                 <button
                   @click="submitReservation"
-                  :disabled="!purpose"
+                  :disabled="!purpose || submitting"
                   class="btn-primary"
-                  :class="{ 'opacity-50 cursor-not-allowed': !purpose }"
+                  :class="{ 'opacity-50 cursor-not-allowed': !purpose || submitting }"
                 >
-                  提交预约
+                  {{ submitting ? '提交中...' : '提交预约' }}
                 </button>
               </div>
             </div>
@@ -310,7 +366,7 @@
         <h3 class="text-2xl font-bold text-gray-900 mb-2">预约提交成功！</h3>
         <p class="text-gray-600 mb-6">您的预约已提交，请等待管理员审核。</p>
         <button
-          @click="showSuccessModal = false"
+          @click="handleSuccessConfirm"
           class="btn-primary w-full"
         >
           确定
@@ -321,8 +377,14 @@
 </template>
 
 <script setup>
-import { ref, computed } from 'vue'
+import { ref, computed, watch, onUnmounted } from 'vue'
+import { useRoute, useRouter } from 'vue-router'
 import { ChevronLeftIcon, ChevronRightIcon, CheckIcon } from '@heroicons/vue/24/outline'
+import { ElMessage } from 'element-plus'
+import { useStore } from 'vuex'
+import { getClassrooms, recommendClassrooms } from '@/api/classroom'
+import { checkConflict, createReservation } from '@/api/reservation'
+import PageHeader from '@/components/common/PageHeader.vue'
 
 // 响应式数据
 const currentStep = ref(1)
@@ -332,11 +394,44 @@ const selectedTimeSlot = ref(null)
 const purpose = ref('')
 const participantCount = ref(1)
 const showSuccessModal = ref(false)
+const submitting = ref(false)
+const classroomsLoading = ref(false)
+const slotStatusLoading = ref(false)
+const availableClassrooms = ref([])
+const store = useStore()
+const route = useRoute()
+const router = useRouter()
+const courseId = ref(route.query.course_id ? Number(route.query.course_id) : null)
+const courseName = ref(typeof route.query.course_name === 'string' ? route.query.course_name : '')
+const courseClassroomType = ref(
+  typeof route.query.course_classroom_type === 'string' ? route.query.course_classroom_type : ''
+)
+const preferredClassroomId = ref(route.query.classroom_id ? Number(route.query.classroom_id) : null)
+const preferredClassroomType = ref(
+  typeof route.query.classroom_type === 'string' ? route.query.classroom_type : ''
+)
+const selectedClassroomId = ref(preferredClassroomId.value || null)
+let successRedirectTimer = null
 
-// 用户信息（模拟数据，实际应从 store 获取）
-const userName = ref('张三')
-const userRole = ref('学生')
+const userName = computed(() => store.state.user?.username || '用户')
+const userRole = computed(() => {
+  const roleMap = { admin: '管理员', teacher: '教师', student: '学生' }
+  return roleMap[store.state.user?.role] || '用户'
+})
 const userInitial = computed(() => userName.value?.charAt(0) || 'U')
+const selectedClassroomName = computed(() => {
+  const selected = availableClassrooms.value.find((item) => item.id === selectedClassroomId.value)
+  return selected?.name || '未选择'
+})
+const selectedClassroomTypeLabel = computed(() => {
+  const selected = classroomTypes.value.find((item) => item.value === selectedClassroomType.value)
+  return selected?.label || ''
+})
+const isCourseTypeLocked = computed(() => Boolean(courseId.value && courseClassroomType.value))
+const lockedTypeLabel = computed(() => {
+  const matched = classroomTypes.value.find((item) => item.value === courseClassroomType.value)
+  return matched?.label || ''
+})
 
 // 教室类型
 const classroomTypes = ref([
@@ -347,18 +442,61 @@ const classroomTypes = ref([
     description: '配备投影仪、音响、电脑等设备'
   },
   {
-    value: 'laboratory',
+    value: 'lab',
     label: '实验室',
     icon: '🔬',
     description: '专业实验设备，适合实践课程'
   },
   {
-    value: 'ordinary',
+    value: 'lecture',
     label: '普通教室',
     icon: '🏫',
     description: '基础教学设施，适合常规课程'
   }
 ])
+
+if (preferredClassroomType.value) {
+  const validTypes = new Set(classroomTypes.value.map((item) => item.value))
+  if (validTypes.has(preferredClassroomType.value)) {
+    selectedClassroomType.value = preferredClassroomType.value
+  }
+}
+
+if (isCourseTypeLocked.value) {
+  selectedClassroomType.value = courseClassroomType.value
+}
+
+const isStepCompleted = (step) => {
+  if (step === 1) return Boolean(selectedClassroomType.value)
+  if (step === 2) return Boolean(selectedDate.value && selectedTimeSlot.value)
+  return false
+}
+
+const isStepActive = (step) => currentStep.value === step
+
+const getStepCircleClass = (step) => {
+  if (isStepCompleted(step)) {
+    return 'bg-primary text-white'
+  }
+  if (isStepActive(step)) {
+    return 'bg-primary text-white ring-4 ring-primary/20'
+  }
+  return 'bg-secondary-200 text-gray-500'
+}
+
+const getStepTitleClass = (step) => {
+  if (isStepCompleted(step) || isStepActive(step)) {
+    return 'text-gray-900'
+  }
+  return 'text-gray-500'
+}
+
+const getStepDescClass = (step) => {
+  if (isStepCompleted(step) || isStepActive(step)) {
+    return 'text-gray-500'
+  }
+  return 'text-gray-400'
+}
 
 // 星期标题
 const weekDays = ['日', '一', '二', '三', '四', '五', '六']
@@ -373,10 +511,14 @@ const currentMonthLabel = computed(() => {
   return `${year}年${month}月`
 })
 
+const pad2 = (value) => String(value).padStart(2, '0')
+const formatLocalDate = (date) => `${date.getFullYear()}-${pad2(date.getMonth() + 1)}-${pad2(date.getDate())}`
+
 // 日历日期
 const calendarDays = computed(() => {
   const year = currentMonth.value.getFullYear()
   const month = currentMonth.value.getMonth()
+  const todayStr = formatLocalDate(new Date())
 
   const firstDay = new Date(year, month, 1)
   const lastDay = new Date(year, month + 1, 0)
@@ -388,10 +530,12 @@ const calendarDays = computed(() => {
   for (let i = 0; i < startDayOfWeek; i++) {
     const day = new Date(year, month, -startDayOfWeek + i + 1)
     days.push({
-      date: day.toISOString().split('T')[0],
+      date: formatLocalDate(day),
       day: day.getDate(),
       isCurrentMonth: false,
       isToday: false,
+      isPast: formatLocalDate(day) < todayStr,
+      isDisabled: true,
       isSelected: false
     })
   }
@@ -399,14 +543,16 @@ const calendarDays = computed(() => {
   // 当前月份的日期
   for (let i = 1; i <= lastDay.getDate(); i++) {
     const day = new Date(year, month, i)
-    const dateStr = day.toISOString().split('T')[0]
-    const today = new Date().toISOString().split('T')[0]
+    const dateStr = formatLocalDate(day)
+    const today = formatLocalDate(new Date())
 
     days.push({
       date: dateStr,
       day: i,
       isCurrentMonth: true,
       isToday: dateStr === today,
+      isPast: dateStr < todayStr,
+      isDisabled: dateStr < todayStr,
       isSelected: selectedDate.value === dateStr
     })
   }
@@ -416,10 +562,12 @@ const calendarDays = computed(() => {
   for (let i = 1; i <= remainingDays; i++) {
     const day = new Date(year, month + 1, i)
     days.push({
-      date: day.toISOString().split('T')[0],
+      date: formatLocalDate(day),
       day: i,
       isCurrentMonth: false,
       isToday: false,
+      isPast: formatLocalDate(day) < todayStr,
+      isDisabled: true,
       isSelected: false
     })
   }
@@ -427,14 +575,22 @@ const calendarDays = computed(() => {
   return days
 })
 
-// 时间段（模拟数据）
-const timeSlots = ref([
-  { time: '08:00-10:00', isOccupied: false, isSelected: false },
-  { time: '10:00-12:00', isOccupied: true, isSelected: false },
-  { time: '14:00-16:00', isOccupied: false, isSelected: false },
-  { time: '16:00-18:00', isOccupied: false, isSelected: false },
-  { time: '19:00-21:00', isOccupied: true, isSelected: false },
-])
+const baseTimeSlots = [
+  { time: '08:00-10:00' },
+  { time: '10:00-12:00' },
+  { time: '14:00-16:00' },
+  { time: '16:00-18:00' },
+  { time: '19:00-21:00' }
+]
+
+const timeSlots = ref(baseTimeSlots.map((slot) => ({
+  ...slot,
+  isOccupied: false,
+  isPast: false,
+  isNoMatch: false,
+  isSelected: false
+})))
+let slotAvailabilitySeq = 0
 
 // 方法
 const previousMonth = () => {
@@ -445,44 +601,374 @@ const nextMonth = () => {
   currentMonth.value = new Date(currentMonth.value.getFullYear(), currentMonth.value.getMonth() + 1, 1)
 }
 
+const selectClassroomType = (typeValue) => {
+  if (isCourseTypeLocked.value && typeValue !== courseClassroomType.value) {
+    return
+  }
+  selectedClassroomType.value = typeValue
+}
+
 const selectDate = (date) => {
-  if (!date.isCurrentMonth) return
+  if (!date.isCurrentMonth || date.isDisabled) return
   selectedDate.value = date.date
   selectedTimeSlot.value = null
-  // 重置时间段选中状态
-  timeSlots.value.forEach(slot => slot.isSelected = false)
+  timeSlots.value = timeSlots.value.map((slot) => ({
+    ...slot,
+    isSelected: false
+  }))
+  updateTimeSlotAvailability()
 }
 
 const selectTimeSlot = (slot) => {
-  if (slot.isOccupied) return
-  timeSlots.value.forEach(s => s.isSelected = false)
-  slot.isSelected = true
-  selectedTimeSlot.value = slot
+  if (slot.isOccupied || slot.isNoMatch || slot.isPast) return
+  timeSlots.value = timeSlots.value.map((item) => ({
+    ...item,
+    isSelected: item.time === slot.time
+  }))
+  selectedTimeSlot.value = { ...slot, isSelected: true }
 }
 
 const formatDate = (dateStr) => {
   if (!dateStr) return ''
-  const date = new Date(dateStr)
-  return `${date.getMonth() + 1}月${date.getDate()}日`
+  const [year, month, day] = dateStr.split('-').map(Number)
+  if (!year || !month || !day) return dateStr
+  return `${month}月${day}日`
 }
 
 const formatFullDate = (dateStr) => {
   if (!dateStr) return ''
-  const date = new Date(dateStr)
+  const [year, month, day] = dateStr.split('-').map(Number)
+  if (!year || !month || !day) return dateStr
+  const date = new Date(year, month - 1, day)
   const weekDays = ['周日', '周一', '周二', '周三', '周四', '周五', '周六']
-  return `${date.getFullYear()}年${date.getMonth() + 1}月${date.getDate()}日 ${weekDays[date.getDay()]}`
+  return `${year}年${month}月${day}日 ${weekDays[date.getDay()]}`
+}
+const toMinutes = (hhmm) => {
+  const [h, m] = (hhmm || '').split(':').map(Number)
+  if (Number.isNaN(h) || Number.isNaN(m)) return 0
+  return h * 60 + m
 }
 
-const submitReservation = () => {
-  // TODO: 调用 API 提交预约
-  console.log({
-    classroomType: selectedClassroomType.value,
-    date: selectedDate.value,
-    timeSlot: selectedTimeSlot.value?.time,
-    purpose: purpose.value,
-    participantCount: participantCount.value
-  })
-
-  showSuccessModal.value = true
+const toList = (payload) => {
+  if (Array.isArray(payload)) return payload
+  if (Array.isArray(payload?.results)) return payload.results
+  if (Array.isArray(payload?.data)) return payload.data
+  return []
 }
+
+const updateTimeSlotAvailability = async () => {
+  if (!selectedDate.value || !selectedClassroomType.value) {
+    timeSlots.value = baseTimeSlots.map((slot) => ({
+      ...slot,
+      isOccupied: false,
+      isPast: false,
+      isNoMatch: false,
+      isSelected: selectedTimeSlot.value?.time === slot.time
+    }))
+    return
+  }
+
+  const seq = ++slotAvailabilitySeq
+  slotStatusLoading.value = true
+
+  try {
+    const todayStr = formatLocalDate(new Date())
+    const now = new Date()
+    const nowMinutes = now.getHours() * 60 + now.getMinutes()
+    const isToday = selectedDate.value === todayStr
+
+    const classroomsResp = await getClassrooms({
+      classroom_type: selectedClassroomType.value,
+      is_available: true
+    })
+    const baseCandidates = toList(classroomsResp).filter(
+      (item) => Number(item.capacity) >= Number(participantCount.value || 1)
+    )
+
+    if (!baseCandidates.length) {
+      if (seq !== slotAvailabilitySeq) return
+      selectedTimeSlot.value = null
+      timeSlots.value = baseTimeSlots.map((slot) => ({
+        ...slot,
+        isOccupied: false,
+        isPast: false,
+        isNoMatch: true,
+        isSelected: false
+      }))
+      return
+    }
+
+    const checks = await Promise.all(
+      baseTimeSlots.map(async (slot) => {
+        const [startTime, endTime] = slot.time.split('-')
+        if (isToday && toMinutes(endTime) <= nowMinutes) {
+          return {
+            time: slot.time,
+            isOccupied: false,
+            isPast: true,
+            isNoMatch: false
+          }
+        }
+        const resp = await recommendClassrooms({
+          date: selectedDate.value,
+          start_time: startTime,
+          end_time: endTime,
+          participant_count: Number(participantCount.value || 1),
+          classroom_type: selectedClassroomType.value,
+          requirements: {}
+        })
+        const recommendations = Array.isArray(resp?.recommendations) ? resp.recommendations : []
+        return {
+          time: slot.time,
+          isOccupied: recommendations.length === 0,
+          isPast: false,
+          isNoMatch: false
+        }
+      })
+    )
+
+    if (seq !== slotAvailabilitySeq) return
+
+    const currentSelectedTime = selectedTimeSlot.value?.time
+    timeSlots.value = checks.map((slot) => ({
+      ...slot,
+      isSelected: currentSelectedTime === slot.time && !slot.isOccupied && !slot.isNoMatch && !slot.isPast
+    }))
+
+    if (currentSelectedTime) {
+      const stillAvailable = checks.some((slot) => slot.time === currentSelectedTime && !slot.isOccupied && !slot.isNoMatch && !slot.isPast)
+      if (!stillAvailable) {
+        selectedTimeSlot.value = null
+      }
+    }
+  } catch (error) {
+    if (seq !== slotAvailabilitySeq) return
+    timeSlots.value = baseTimeSlots.map((slot) => ({
+      ...slot,
+      isOccupied: false,
+      isPast: false,
+      isNoMatch: false,
+      isSelected: selectedTimeSlot.value?.time === slot.time
+    }))
+    ElMessage.warning('时间段可用性获取失败，已显示默认可选状态')
+  } finally {
+    if (seq === slotAvailabilitySeq) {
+      slotStatusLoading.value = false
+    }
+  }
+}
+
+const loadAvailableClassrooms = async () => {
+  if (!selectedClassroomType.value) return
+  classroomsLoading.value = true
+  try {
+    const classroomResp = await getClassrooms({
+      classroom_type: selectedClassroomType.value,
+      is_available: true
+    })
+    const candidates = toList(classroomResp)
+      .filter((item) => Number(item.capacity) >= Number(participantCount.value || 1))
+      .sort((a, b) => Number(a.capacity) - Number(b.capacity))
+
+    availableClassrooms.value = candidates
+
+    if (!candidates.length) {
+      selectedClassroomId.value = null
+      return
+    }
+
+    if (preferredClassroomId.value && candidates.some((item) => item.id === preferredClassroomId.value)) {
+      selectedClassroomId.value = preferredClassroomId.value
+      return
+    }
+
+    if (selectedClassroomId.value && candidates.some((item) => item.id === selectedClassroomId.value)) {
+      return
+    }
+
+    selectedClassroomId.value = candidates[0].id
+  } catch (error) {
+    availableClassrooms.value = []
+    selectedClassroomId.value = null
+    ElMessage.error('加载可选教室失败')
+  } finally {
+    classroomsLoading.value = false
+  }
+}
+
+const enterStep3 = async () => {
+  if (!selectedTimeSlot.value) {
+    ElMessage.warning('请先选择时间段')
+    return
+  }
+
+  currentStep.value = 3
+  await loadAvailableClassrooms()
+  if (!availableClassrooms.value.length) {
+    ElMessage.warning('当前条件下暂无可用教室，请调整人数或时间段')
+  }
+}
+
+const resetBookingToHome = async () => {
+  currentStep.value = 1
+  selectedClassroomType.value = ''
+  selectedDate.value = null
+  selectedTimeSlot.value = null
+  selectedClassroomId.value = null
+  purpose.value = ''
+  participantCount.value = 1
+  showSuccessModal.value = false
+  availableClassrooms.value = []
+  preferredClassroomId.value = null
+  preferredClassroomType.value = ''
+  courseId.value = null
+  courseName.value = ''
+  courseClassroomType.value = ''
+  slotAvailabilitySeq += 1
+  slotStatusLoading.value = false
+  timeSlots.value = baseTimeSlots.map((slot) => ({
+    ...slot,
+    isOccupied: false,
+    isPast: false,
+    isNoMatch: false,
+    isSelected: false
+  }))
+  await router.replace({ path: '/booking' })
+}
+
+const scheduleBookingHomeRedirect = () => {
+  if (successRedirectTimer) {
+    window.clearTimeout(successRedirectTimer)
+  }
+  successRedirectTimer = window.setTimeout(() => {
+    successRedirectTimer = null
+    resetBookingToHome()
+  }, 900)
+}
+
+const submitReservation = async () => {
+  if (!selectedClassroomType.value || !selectedDate.value || !selectedTimeSlot.value) {
+    ElMessage.warning('请先选择教室类型、日期和时间段')
+    return
+  }
+  if (!selectedClassroomId.value) {
+    ElMessage.warning('请选择具体教室')
+    return
+  }
+  if (!purpose.value.trim()) {
+    ElMessage.warning('请填写使用目的')
+    return
+  }
+  if (participantCount.value <= 0) {
+    ElMessage.warning('参与人数必须大于0')
+    return
+  }
+  if (isCourseTypeLocked.value && selectedClassroomType.value !== courseClassroomType.value) {
+    ElMessage.warning('当前课程仅允许预约指定教室类型')
+    return
+  }
+
+  submitting.value = true
+  try {
+    const [startTime, endTime] = selectedTimeSlot.value.time.split('-')
+    const selectedClassroom = availableClassrooms.value.find((item) => item.id === selectedClassroomId.value)
+    if (!selectedClassroom) {
+      ElMessage.warning('所选教室不可用，请重新选择')
+      return
+    }
+
+    const payload = {
+      classroom: selectedClassroom.id,
+      date: selectedDate.value,
+      start_time: startTime,
+      end_time: endTime,
+      purpose: purpose.value.trim(),
+      participant_count: Number(participantCount.value),
+      description: `类型:${selectedClassroomType.value}; 用户选择教室:${selectedClassroom.name}`
+    }
+    if (courseId.value) {
+      payload.course_id = courseId.value
+    }
+
+    const conflict = await checkConflict(payload)
+    if (conflict?.has_conflict) {
+      ElMessage.warning('该时间段已被占用，请选择其他时间段')
+      return
+    }
+
+    await createReservation(payload)
+    showSuccessModal.value = true
+    scheduleBookingHomeRedirect()
+  } catch (error) {
+    ElMessage.error('预约提交失败，请稍后重试')
+  } finally {
+    submitting.value = false
+  }
+}
+
+const handleSuccessConfirm = () => {
+  if (successRedirectTimer) {
+    window.clearTimeout(successRedirectTimer)
+    successRedirectTimer = null
+  }
+  resetBookingToHome()
+}
+
+watch(
+  () => participantCount.value,
+  () => {
+    if (currentStep.value === 3) {
+      loadAvailableClassrooms()
+    }
+    if (currentStep.value >= 2 && selectedDate.value && selectedClassroomType.value) {
+      updateTimeSlotAvailability()
+    }
+  }
+)
+
+watch(
+  () => selectedClassroomType.value,
+  () => {
+    selectedDate.value = null
+    selectedTimeSlot.value = null
+    timeSlots.value = baseTimeSlots.map((slot) => ({
+      ...slot,
+      isOccupied: false,
+      isPast: false,
+      isNoMatch: false,
+      isSelected: false
+    }))
+  }
+)
+
+onUnmounted(() => {
+  if (successRedirectTimer) {
+    window.clearTimeout(successRedirectTimer)
+    successRedirectTimer = null
+  }
+})
 </script>
+
+<style scoped>
+.classroom-type-card {
+  border-width: 2px;
+  border-color: #e5e7eb;
+  transition: all 0.2s ease;
+}
+
+.classroom-type-card:hover {
+  border-color: #80cbc4;
+}
+
+.classroom-type-card.is-selected {
+  border-color: #00897b;
+  box-shadow: 0 0 0 3px rgba(0, 137, 123, 0.12), 0 8px 20px rgba(0, 137, 123, 0.12);
+  background: linear-gradient(180deg, #ffffff 0%, #f5fffc 100%);
+}
+
+.classroom-type-card.is-locked-out {
+  opacity: 0.45;
+  cursor: not-allowed;
+}
+
+</style>

@@ -10,6 +10,7 @@ class Reservation(models.Model):
         ('approved', '已批准'),
         ('rejected', '已拒绝'),
         ('cancelled', '已取消'),
+        ('expired', '已过期'),
     )
     
     classroom = models.ForeignKey(Classroom, on_delete=models.CASCADE, related_name='reservations', verbose_name='教室')
@@ -36,6 +37,11 @@ class Reservation(models.Model):
         verbose_name = '预约'
         verbose_name_plural = verbose_name
         ordering = ['-date', '-start_time']
+        indexes = [
+            models.Index(fields=['date', 'status']),
+            models.Index(fields=['user', 'date']),
+            models.Index(fields=['classroom', 'date']),
+        ]
 
     def __str__(self):
         return f"{self.classroom.name} - {self.date} {self.start_time}-{self.end_time}"
@@ -47,12 +53,13 @@ class Reservation(models.Model):
 
         # 验证预约时间是否早于当前时间（使用本地时区）
         now = timezone.localtime()
+        current_time = now.time().replace(tzinfo=None)
         # 如果预约日期早于今天，视为失效
         if self.date < now.date():
             raise ValidationError('预约日期不能早于今天')
-        # 如果是今天，检查开始时间是否已过
-        elif self.date == now.date() and self.start_time < now.time():
-            raise ValidationError('预约时间已过，请选择未来的时间段')
+        # 如果是今天，仅当该时间段已结束才禁止
+        elif self.date == now.date() and self.end_time <= current_time:
+            raise ValidationError('预约时间段已结束，请选择未来的时间段')
         
         # 验证人数不超过教室容量
         if self.participant_count > self.classroom.capacity:
@@ -79,3 +86,15 @@ class Reservation(models.Model):
     def save(self, *args, **kwargs):
         self.full_clean()
         super().save(*args, **kwargs)
+
+
+class ReservationStatusLog(models.Model):
+    reservation = models.ForeignKey(Reservation, on_delete=models.CASCADE, related_name='status_logs')
+    from_status = models.CharField(max_length=20, blank=True, null=True)
+    to_status = models.CharField(max_length=20)
+    operator = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, blank=True, related_name='reservation_status_logs')
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        db_table = 'reservation_status_logs'
+        ordering = ['-created_at']

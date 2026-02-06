@@ -1,189 +1,197 @@
 <template>
-  <div class="login-container">
-    <div class="login-card">
-      <div class="icon">🏫</div>
-      <h1>教室预约系统</h1>
-      <p class="subtitle">Classroom Reservation System</p>
-      
-      <el-form :model="form" :rules="rules" ref="loginForm" class="login-form">
-        <el-form-item prop="username">
-          <el-input 
-            v-model="form.username" 
-            placeholder="请输入用户名" 
-            size="large"
-            prefix-icon="User"
-          />
-        </el-form-item>
-        <el-form-item prop="password">
-          <el-input 
-            v-model="form.password" 
-            type="password" 
-            placeholder="请输入密码" 
-            size="large"
-            prefix-icon="Lock"
-            @keyup.enter="handleLogin"
-          />
-        </el-form-item>
-        <el-form-item>
-          <el-button 
-            type="primary" 
-            class="login-btn"
-            @click="handleLogin" 
-            :loading="loading"
-          >
-            登录系统
-          </el-button>
-        </el-form-item>
-        <el-form-item>
-          <el-button 
-            class="register-btn"
-            @click="$router.push('/register')"
-          >
-            注册新账号
-          </el-button>
-        </el-form-item>
-      </el-form>
+  <AuthCard title="教室预约系统" subtitle="Classroom Reservation System" card-class="login-card-size">
+    <template #icon>
+      <School />
+    </template>
+
+    <el-form ref="loginForm" :model="form" :rules="rules" class="login-form">
+      <el-form-item prop="username">
+        <el-input
+          v-model="form.username"
+          placeholder="请输入用户名"
+          size="large"
+          prefix-icon="User"
+        />
+      </el-form-item>
+
+      <el-form-item prop="password">
+        <el-input
+          v-model="form.password"
+          type="password"
+          placeholder="请输入密码"
+          size="large"
+          prefix-icon="Lock"
+          @keyup.enter="handleLogin"
+        />
+      </el-form-item>
+
+      <el-form-item>
+        <el-button type="primary" class="login-btn" :loading="loading" @click="handleLogin">
+          {{ loading ? '登录中...' : '登录系统' }}
+        </el-button>
+      </el-form-item>
+
+      <AuthFooterLink text="还没有账号？" action-text="立即注册" @click="router.push('/register')" />
+    </el-form>
+
+    <div class="divider"><span>或</span></div>
+
+    <div class="demo-credentials">
+      <p class="demo-title">演示账号</p>
+      <div class="demo-buttons">
+        <el-button size="small" @click="fillDemo('teacher')">教师</el-button>
+        <el-button size="small" @click="fillDemo('student')">学生</el-button>
+      </div>
+      <p class="demo-note">管理员请通过 Django 后台登录</p>
     </div>
-  </div>
+  </AuthCard>
 </template>
 
-<script>
+<script setup>
 import { ref } from 'vue'
 import { useRouter } from 'vue-router'
 import { useStore } from 'vuex'
 import { ElMessage } from 'element-plus'
+import { School } from '@element-plus/icons-vue'
 import { login } from '@/api/auth'
+import AuthCard from '@/components/auth/AuthCard.vue'
+import AuthFooterLink from '@/components/auth/AuthFooterLink.vue'
 
-export default {
-  name: 'Login',
-  setup() {
-    const router = useRouter()
-    const store = useStore()
-    const loginForm = ref(null)
-    const loading = ref(false)
-    
-    const form = ref({
-      username: '',
-      password: ''
-    })
-    
-    const rules = {
-      username: [{ required: true, message: '请输入用户名', trigger: 'blur' }],
-      password: [{ required: true, message: '请输入密码', trigger: 'blur' }]
+const router = useRouter()
+const store = useStore()
+const loginForm = ref(null)
+const loading = ref(false)
+
+const form = ref({
+  username: '',
+  password: ''
+})
+
+const rules = {
+  username: [{ required: true, message: '请输入用户名', trigger: 'blur' }],
+  password: [{ required: true, message: '请输入密码', trigger: 'blur' }]
+}
+
+const demoCredentials = {
+  teacher: { username: 'teacher', password: 'teacher123' },
+  student: { username: 'student', password: 'student123' }
+}
+
+const fillDemo = (role) => {
+  form.value = { ...demoCredentials[role] }
+  ElMessage.info(`已填充${role === 'teacher' ? '教师' : '学生'}演示账号`)
+}
+
+const handleLogin = async () => {
+  if (!loginForm.value || loading.value) return
+
+  await loginForm.value.validate(async (valid) => {
+    if (!valid) return
+
+    loading.value = true
+    try {
+      const res = await login(form.value)
+      store.dispatch('login', res)
+      await store.dispatch('fetchUserInfo')
+      ElMessage.success('登录成功')
+      router.push('/')
+    } catch (error) {
+      ElMessage.error('登录失败，请检查用户名和密码')
+    } finally {
+      loading.value = false
     }
-    
-    const handleLogin = async () => {
-      if (!loginForm.value) return
-      
-      await loginForm.value.validate(async (valid) => {
-        if (valid) {
-          loading.value = true
-          try {
-            const res = await login(form.value)
-            store.dispatch('login', res)
-            await store.dispatch('fetchUserInfo')
-            ElMessage.success('登录成功')
-            router.push('/')
-          } catch (error) {
-            ElMessage.error('登录失败，请检查用户名和密码')
-          } finally {
-            loading.value = false
-          }
-        }
-      })
-    }
-    
-    return {
-      form,
-      rules,
-      loginForm,
-      loading,
-      handleLogin
-    }
-  }
+  })
 }
 </script>
 
 <style scoped>
-.login-container {
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  min-height: 100vh;
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-  padding: 20px;
-}
-
-.login-card {
-  background: white;
-  border-radius: 20px;
-  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
-  padding: 50px 40px;
-  max-width: 450px;
-  width: 100%;
+:deep(.login-card-size) {
+  max-width: 440px;
   text-align: center;
-}
-
-.icon {
-  font-size: 4em;
-  margin-bottom: 20px;
-}
-
-h1 {
-  color: #667eea;
-  margin-bottom: 10px;
-  font-size: 2em;
-}
-
-.subtitle {
-  color: #666;
-  margin-bottom: 40px;
-  font-size: 1em;
 }
 
 .login-form {
   text-align: left;
 }
 
+:deep(.el-form-item:last-child) {
+  margin-bottom: 0;
+}
+
 .login-btn {
   width: 100%;
-  height: 45px;
-  font-size: 16px;
+  height: 48px;
+  font-size: 1rem;
   font-weight: 600;
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-  border: none;
-  border-radius: 8px;
-  transition: all 0.3s;
+  border-radius: 12px;
 }
 
-.login-btn:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 6px 20px rgba(102, 126, 234, 0.4);
+.divider {
+  position: relative;
+  margin: 32px 0;
+  text-align: center;
 }
 
-.register-btn {
-  width: 100%;
-  height: 45px;
-  font-size: 16px;
-  font-weight: 600;
+.divider::before {
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: 0;
+  right: 0;
+  height: 1px;
+  background: #e5e7eb;
+}
+
+.divider span {
+  position: relative;
   background: white;
-  color: #667eea;
-  border: 2px solid #667eea;
+  padding: 0 16px;
+  color: #9ca3af;
+  font-size: 0.875rem;
+}
+
+.demo-credentials {
+  text-align: center;
+}
+
+.demo-title {
+  color: #6b7280;
+  font-size: 0.875rem;
+  margin: 0 0 16px;
+}
+
+.demo-buttons {
+  display: flex;
+  gap: 8px;
+  justify-content: center;
+}
+
+.demo-buttons .el-button {
   border-radius: 8px;
-  transition: all 0.3s;
+  border-color: #e5e7eb;
+  color: #6b7280;
 }
 
-.register-btn:hover {
-  background: #f0f4ff;
-  transform: translateY(-2px);
+.demo-buttons .el-button:hover {
+  border-color: #00897b;
+  color: #00897b;
+  background: #e0f2f1;
 }
 
-:deep(.el-input__wrapper) {
-  border-radius: 8px;
-  padding: 8px 15px;
+.demo-note {
+  color: #9ca3af;
+  font-size: 0.75rem;
+  margin-top: 12px;
+  font-style: italic;
 }
 
-:deep(.el-input__inner) {
-  font-size: 15px;
+@media (max-width: 640px) {
+  .demo-buttons {
+    flex-direction: column;
+  }
+
+  .demo-buttons .el-button {
+    width: 100%;
+  }
 }
 </style>

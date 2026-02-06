@@ -17,6 +17,18 @@ class UserSerializer(serializers.ModelSerializer):
         read_only_fields = ['id', 'date_joined', 'is_backend_registered']
 
 
+class UserProfileUpdateSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = User
+        fields = ['email', 'first_name', 'last_name', 'phone', 'department']
+
+    def validate_email(self, value):
+        user = self.instance
+        if User.objects.exclude(pk=user.pk).filter(email=value).exists():
+            raise serializers.ValidationError('该邮箱已被其他账号使用')
+        return value
+
+
 class UserRegistrationSerializer(serializers.ModelSerializer):
     password = serializers.CharField(write_only=True, min_length=6)
     password_confirm = serializers.CharField(write_only=True)
@@ -53,6 +65,5 @@ class UserRegistrationSerializer(serializers.ModelSerializer):
         validated_data['is_staff'] = False
         user = User.objects.create_user(**validated_data)
         return user
-
 
 

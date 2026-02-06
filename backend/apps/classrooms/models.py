@@ -1,5 +1,32 @@
 from django.db import models
 
+
+class ClassroomType(models.Model):
+    name = models.CharField(max_length=50, unique=True, verbose_name='类型名称')
+    description = models.TextField(blank=True, null=True, verbose_name='类型描述')
+
+    class Meta:
+        db_table = 'classroom_types'
+        verbose_name = '教室类型定义'
+        verbose_name_plural = verbose_name
+
+    def __str__(self):
+        return self.name
+
+
+class ClassroomEquipment(models.Model):
+    name = models.CharField(max_length=50, unique=True, verbose_name='设备名称')
+    description = models.TextField(blank=True, null=True, verbose_name='设备描述')
+
+    class Meta:
+        db_table = 'classroom_equipments'
+        verbose_name = '教室设备定义'
+        verbose_name_plural = verbose_name
+
+    def __str__(self):
+        return self.name
+
+
 class Classroom(models.Model):
     CLASSROOM_TYPE_CHOICES = (
         ('lecture', '普通教室'),

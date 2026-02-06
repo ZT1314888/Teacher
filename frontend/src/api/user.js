@@ -15,6 +15,21 @@ export const getUserInfo = () => {
   })
 }
 
+export const updateMyProfile = (data) => {
+  return request({
+    url: '/users/me/',
+    method: 'patch',
+    data
+  })
+}
+
+export const getDepartments = () => {
+  return request({
+    url: '/users/departments/',
+    method: 'get'
+  })
+}
+
 export const applyForAdmin = (data) => {
   return request({
     url: '/users/admin-requests/',
