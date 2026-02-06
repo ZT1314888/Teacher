@@ -3,7 +3,12 @@ from rest_framework.decorators import action
 from rest_framework.response import Response
 from rest_framework.permissions import AllowAny, IsAuthenticated
 from .models import User, Department
-from .serializers import UserSerializer, UserRegistrationSerializer, DepartmentSerializer
+from .serializers import (
+    UserSerializer,
+    UserRegistrationSerializer,
+    DepartmentSerializer,
+    UserProfileUpdateSerializer,
+)
 from .permissions import IsAdminUser
 
 class UserViewSet(viewsets.ModelViewSet):
@@ -22,10 +27,14 @@ class UserViewSet(viewsets.ModelViewSet):
             return UserRegistrationSerializer
         return UserSerializer
     
-    @action(detail=False, methods=['get'])
+    @action(detail=False, methods=['get', 'patch'])
     def me(self, request):
-        serializer = self.get_serializer(request.user)
-        return Response(serializer.data)
+        if request.method.lower() == 'patch':
+            serializer = UserProfileUpdateSerializer(request.user, data=request.data, partial=True)
+            serializer.is_valid(raise_exception=True)
+            serializer.save()
+        user_serializer = self.get_serializer(request.user)
+        return Response(user_serializer.data)
     
     @action(detail=True, methods=['post'])
     def change_password(self, request, pk=None):

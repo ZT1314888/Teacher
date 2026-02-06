@@ -1,6 +1,6 @@
 <template>
   <div class="reservations">
-    <h2>预约教室</h2>
+    <PageHeader />
     
     <el-form :model="form" :rules="rules" ref="reservationForm" label-width="100px">
       <el-form-item label="选择教室" prop="classroom">
@@ -75,9 +75,11 @@ import { useRouter, useRoute } from 'vue-router'
 import { ElMessage } from 'element-plus'
 import { getAvailableClassrooms } from '@/api/classroom'
 import { createReservation, checkConflict } from '@/api/reservation'
+import PageHeader from '@/components/common/PageHeader.vue'
 
 export default {
   name: 'Reservations',
+  components: { PageHeader },
   setup() {
     const router = useRouter()
     const route = useRoute()
@@ -204,9 +206,5 @@ export default {
 .reservations {
   padding: 20px;
   max-width: 800px;
-}
-
-h2 {
-  margin-bottom: 20px;
 }
 </style>

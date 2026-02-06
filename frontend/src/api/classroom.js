@@ -44,3 +44,11 @@ export const getAvailableClassrooms = () => {
     method: 'get'
   })
 }
+
+export const recommendClassrooms = (data) => {
+  return request({
+    url: '/classrooms/recommend/',
+    method: 'post',
+    data
+  })
+}

@@ -1,4 +1,5 @@
 import { createRouter, createWebHistory } from 'vue-router'
+import { ElMessage } from 'element-plus'
 import store from '@/store'
 
 const routes = [
@@ -50,10 +51,16 @@ const routes = [
         meta: { requiresAuth: true }
       },
       {
+        path: 'profile',
+        name: 'Profile',
+        component: () => import('@/views/Profile.vue'),
+        meta: { requiresAuth: true }
+      },
+      {
         path: 'teacher-courses',
         name: 'TeacherCourses',
         component: () => import('@/views/TeacherCourses.vue'),
-        meta: { requiresAuth: true }
+        meta: { requiresAuth: true, roles: ['teacher'] }
       },
       {
         path: 'change-password',
@@ -66,33 +73,9 @@ const routes = [
         component: () => import('@/views/Announcements.vue')
       },
       {
-        path: 'admin',
-        name: 'Admin',
-        component: () => import('@/views/Admin.vue'),
-        meta: { requiresAuth: true, requiresAdmin: true },
-        redirect: '/admin/announcements',
-        children: [
-          {
-            path: 'announcements',
-            name: 'AdminAnnouncements',
-            component: () => import('@/views/admin/Announcements.vue')
-          },
-          {
-            path: 'classrooms',
-            name: 'AdminClassrooms',
-            component: () => import('@/views/admin/Classrooms.vue')
-          },
-          {
-            path: 'users',
-            name: 'AdminUsers',
-            component: () => import('@/views/admin/Users.vue')
-          },
-          {
-            path: 'reservations',
-            name: 'AdminReservations',
-            component: () => import('@/views/admin/Reservations.vue')
-          }
-        ]
+        path: 'stats',
+        name: 'Stats',
+        component: () => import('@/views/Stats.vue')
       }
     ]
   }
@@ -103,24 +86,39 @@ const router = createRouter({
   routes
 })
 
-router.beforeEach(async (to, from, next) => {
+router.beforeEach(async (to, _, next) => {
   const isAuthenticated = store.getters.isAuthenticated
   
   if (to.meta.requiresAuth && !isAuthenticated) {
     next('/login')
-  } else if (to.meta.requiresAdmin && !store.getters.isAdmin) {
-    next('/dashboard')
-  } else {
-    if (isAuthenticated && !store.state.user) {
-      try {
-        await store.dispatch('fetchUserInfo')
-      } catch (error) {
-        next('/login')
-        return
-      }
-    }
-    next()
+    return
   }
+
+  if (isAuthenticated && !store.state.user) {
+    try {
+      await store.dispatch('fetchUserInfo')
+    } catch (error) {
+      next('/login')
+      return
+    }
+  }
+
+  if (to.meta.requiresAdmin && !store.getters.isAdmin) {
+    next('/dashboard')
+    return
+  }
+
+  const routeRoles = Array.isArray(to.meta.roles) ? to.meta.roles : []
+  if (routeRoles.length > 0) {
+    const currentRole = store.state.user?.role
+    if (!routeRoles.includes(currentRole)) {
+      ElMessage.warning('仅教师可访问关联课程')
+      next('/dashboard')
+      return
+    }
+  }
+
+  next()
 })
 
 export default router

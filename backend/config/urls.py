@@ -66,6 +66,8 @@ urlpatterns = [
     path('api/reservations/', include('apps.reservations.urls')),
     path('api/announcements/', include('apps.announcements.urls')),
     path('api/courses/', include('apps.courses.urls')),
+    path('api/notifications/', include('apps.notifications.urls')),
+    path('api/stats/', include('apps.stats.urls')),
 ]
 
 # 开发环境下提供静态文件和媒体文件服务

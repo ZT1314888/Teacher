@@ -1,0 +1,658 @@
+/* Element Plus 自定义样式 - 现代简约风格 */
+
+/* ==================== 全局 CSS 变量覆盖 ==================== */
+:root {
+  --el-color-primary: #00897b;
+  --el-color-primary-light-3: #4db6ac;
+  --el-color-primary-light-5: #80cbc4;
+  --el-color-primary-light-7: #b2dfdb;
+  --el-color-primary-light-8: #e0f2f1;
+  --el-color-primary-light-9: #f0fdfa;
+  --el-color-primary-dark-2: #00796b;
+  --el-color-success: #10b981;
+  --el-color-warning: #f59e0b;
+  --el-color-danger: #ef4444;
+  --el-color-error: #ef4444;
+  --el-color-info: #3b82f6;
+  --el-border-radius-base: 12px;
+  --el-border-radius-small: 8px;
+  --el-border-radius-round: 20px;
+  --el-border-radius-circle: 50%;
+  --el-font-size-base: 14px;
+  --el-box-shadow-light: 0 0 12px rgba(0, 0, 0, 0.12);
+  --el-box-shadow-base: 0 2px 4px rgba(0, 0, 0, 0.12), 0 0 6px rgba(0, 0, 0, 0.04);
+  --el-box-shadow-dark: 0 2px 8px rgba(0, 0, 0, 0.12), 0 0 6px rgba(0, 0, 0, 0.04);
+}
+
+/* ==================== 全局样式覆盖 ==================== */
+
+/* 移除默认轮廓，使用自定义聚焦样式 */
+.el-button:focus,
+.el-input:focus,
+.el-select:focus,
+.el-textarea:focus {
+  outline: none;
+}
+
+/* ==================== 按钮样式 ==================== */
+
+/* 基础按钮 - 浅色风格 */
+.el-button--default {
+  border-color: #e5e7eb;
+  color: #4b5563;
+  background-color: #ffffff;
+  transition: all 0.2s ease;
+}
+
+.el-button--default:hover {
+  background-color: #f9fafb;
+  border-color: #d1d5db;
+  color: #1f2937;
+}
+
+/* 主按钮 - 使用青色，但激活状态不使用深色背景 */
+.el-button--primary {
+  background-color: #00897b;
+  border-color: #00897b;
+  color: #ffffff;
+  transition: all 0.2s ease;
+}
+
+.el-button--primary:hover {
+  background-color: #00796b;
+  border-color: #00796b;
+  /* 不使用深色覆盖，仅改变边框和背景色 */
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(0, 137, 123, 0.15);
+}
+
+.el-button--primary:active {
+  transform: translateY(0);
+  box-shadow: 0 2px 4px rgba(0, 137, 123, 0.1);
+}
+
+/* 文字按钮 - 使用青色文字 */
+.el-button.is-link {
+  color: #00897b;
+}
+
+.el-button.is-link:hover {
+  color: #00796b;
+}
+
+/* 危险按钮 */
+.el-button--danger {
+  background-color: #ef4444;
+  border-color: #ef4444;
+}
+
+.el-button--danger:hover {
+  background-color: #dc2626;
+  border-color: #dc2626;
+  box-shadow: 0 4px 12px rgba(239, 68, 68, 0.15);
+}
+
+/* 成功按钮 */
+.el-button--success {
+  background-color: #10b981;
+  border-color: #10b981;
+}
+
+.el-button--success:hover {
+  background-color: #059669;
+  border-color: #059669;
+  box-shadow: 0 4px 12px rgba(16, 185, 129, 0.15);
+}
+
+/* 幽灵按钮 - 仅边框 */
+.el-button.is-plain.el-button--primary {
+  background-color: #e0f2f1;
+  border-color: #00897b;
+  color: #00897b;
+}
+
+.el-button.is-plain.el-button--primary:hover {
+  background-color: #b2dfdb;
+  border-color: #00796b;
+  color: #00796b;
+}
+
+/* ==================== 输入框样式 ==================== */
+
+.el-input__wrapper {
+  border-radius: 0.75rem !important;
+  box-shadow: 0 0 0 1px #e5e7eb inset !important;
+  transition: all 0.2s ease;
+  padding: 8px 16px;
+}
+
+.el-input__wrapper:hover {
+  box-shadow: 0 0 0 1px #d1d5db inset !important;
+}
+
+.el-input__wrapper.is-focus {
+  box-shadow: 0 0 0 2px #00897b inset !important;
+  border-color: #00897b !important;
+}
+
+/* 移除 Element Plus 默认的蓝色聚焦效果 */
+.el-input__wrapper:focus,
+.el-input__wrapper:focus-within {
+  box-shadow: 0 0 0 2px #00897b inset !important;
+  border-color: #00897b !important;
+}
+
+.el-input__inner {
+  color: #1f2937;
+}
+
+.el-input__inner:focus {
+  border: none !important;
+  box-shadow: none !important;
+}
+
+.el-input__inner::placeholder {
+  color: #9ca3af;
+}
+
+/* 文本域 */
+.el-textarea__inner {
+  border-radius: 0.75rem;
+  border-color: #e5e7eb !important;
+  padding: 12px 16px;
+  transition: all 0.2s ease;
+}
+
+.el-textarea__inner:hover {
+  border-color: #d1d5db !important;
+}
+
+.el-textarea__inner:focus {
+  border-color: #00897b !important;
+  box-shadow: 0 0 0 2px rgba(0, 137, 123, 0.1) !important;
+  outline: none !important;
+}
+
+/* ==================== 表单项样式 ==================== */
+
+.el-form-item {
+  margin-bottom: 20px;
+}
+
+.el-form-item__label {
+  color: #374151;
+  font-weight: 500;
+}
+
+.el-form-item__error {
+  color: #ef4444;
+}
+
+/* 确保表单项没有默认的蓝色边框 */
+.el-form-item.is-error .el-input__wrapper {
+  box-shadow: 0 0 0 1px #ef4444 inset !important;
+  border-color: #ef4444 !important;
+}
+
+.el-form-item.is-error .el-textarea__inner {
+  border-color: #ef4444 !important;
+}
+
+.el-form-item.is-success .el-input__wrapper {
+  box-shadow: 0 0 0 1px #10b981 inset !important;
+  border-color: #10b981 !important;
+}
+
+/* ==================== 选择器样式 ==================== */
+
+.el-select .el-input__wrapper {
+  border-radius: 0.75rem;
+}
+
+.el-select-dropdown {
+  border-radius: 0.75rem;
+  border-color: #e5e7eb;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+}
+
+.el-select-dropdown__item {
+  border-radius: 0.5rem;
+  margin: 2px 8px;
+}
+
+.el-select-dropdown__item:hover {
+  background-color: #e0f2f1;
+  color: #00897b;
+}
+
+.el-select-dropdown__item.selected {
+  background-color: #b2dfdb;
+  color: #00897b;
+  font-weight: 500;
+}
+
+/* ==================== 日期选择器样式 ==================== */
+
+.el-picker-panel {
+  border-radius: 0.75rem;
+  border-color: #e5e7eb;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+}
+
+.el-date-table td.in-range div {
+  background-color: #e0f2f1;
+}
+
+.el-date-table td.start-date div,
+.el-date-table td.end-date div {
+  background-color: #00897b;
+}
+
+.el-date-table td.today span {
+  color: #00897b;
+  font-weight: 600;
+}
+
+.el-date-table td.available:hover {
+  color: #00897b;
+}
+
+/* ==================== 标签页样式 ==================== */
+
+.el-tabs__item {
+  color: #6b7280;
+  font-weight: 500;
+  padding: 0 24px;
+  height: 48px;
+  line-height: 48px;
+  transition: all 0.2s ease;
+}
+
+.el-tabs__item:hover {
+  color: #00897b;
+}
+
+.el-tabs__item.is-active {
+  color: #00897b;
+  font-weight: 600;
+}
+
+.el-tabs__active-bar {
+  background-color: #00897b;
+  height: 3px;
+  border-radius: 2px 2px 0 0;
+}
+
+.el-tabs__nav-wrap::after {
+  background-color: #e5e7eb;
+}
+
+/* ==================== 表格样式 ==================== */
+
+.el-table {
+  border-radius: 0.75rem;
+  overflow: hidden;
+  border-color: #e5e7eb;
+}
+
+.el-table th.el-table__cell {
+  background-color: #f9fafb;
+  color: #6b7280;
+  font-weight: 600;
+  border-color: #e5e7eb;
+  padding: 16px;
+}
+
+.el-table td.el-table__cell {
+  border-color: #f3f4f6;
+  padding: 16px;
+  color: #1f2937;
+}
+
+.el-table__row:hover {
+  background-color: #f9fafb;
+}
+
+.el-table--enable-row-hover .el-table__body tr:hover > td {
+  background-color: #f9fafb;
+}
+
+/* ==================== 下拉菜单样式 ==================== */
+
+.el-dropdown-menu {
+  border-radius: 0.75rem;
+  border-color: #e5e7eb;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+  padding: 8px;
+}
+
+.el-dropdown-menu__item {
+  border-radius: 0.5rem;
+  padding: 10px 16px;
+  color: #4b5563;
+  transition: all 0.15s ease;
+}
+
+.el-dropdown-menu__item:hover {
+  background-color: #e0f2f1;
+  color: #00897b;
+}
+
+/* ==================== 对话框样式 ==================== */
+
+.el-dialog {
+  border-radius: 1rem;
+  box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+}
+
+.el-dialog__header {
+  padding: 24px 24px 16px;
+  border-bottom: 1px solid #e5e7eb;
+}
+
+.el-dialog__title {
+  color: #1f2937;
+  font-weight: 600;
+  font-size: 1.125rem;
+}
+
+.el-dialog__body {
+  padding: 24px;
+  color: #4b5563;
+}
+
+.el-dialog__footer {
+  padding: 16px 24px 24px;
+  border-top: 1px solid #e5e7eb;
+}
+
+/* ==================== 消息提示样式 ==================== */
+
+.el-message {
+  border-radius: 0.75rem;
+  box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+  padding: 12px 20px;
+}
+
+.el-message--success {
+  background-color: #d1fae5;
+  border-color: #10b981;
+}
+
+.el-message--success .el-message__content {
+  color: #065f46;
+}
+
+.el-message--error {
+  background-color: #fee2e2;
+  border-color: #ef4444;
+}
+
+.el-message--error .el-message__content {
+  color: #991b1b;
+}
+
+.el-message--warning {
+  background-color: #fef3c7;
+  border-color: #f59e0b;
+}
+
+.el-message--warning .el-message__content {
+  color: #92400e;
+}
+
+.el-message--info {
+  background-color: #dbeafe;
+  border-color: #3b82f6;
+}
+
+.el-message--info .el-message__content {
+  color: #1e40af;
+}
+
+/* ==================== 通知样式 ==================== */
+
+.el-notification {
+  border-radius: 0.75rem;
+  box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1);
+  border-color: #e5e7eb;
+}
+
+.el-notification__title {
+  color: #1f2937;
+  font-weight: 600;
+}
+
+.el-notification__content {
+  color: #6b7280;
+}
+
+/* ==================== 卡片样式 ==================== */
+
+.el-card {
+  border-radius: 0.75rem;
+  border-color: #e5e7eb;
+  box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.05);
+}
+
+.el-card__header {
+  border-bottom-color: #e5e7eb;
+  padding: 20px 24px;
+  font-weight: 600;
+  color: #1f2937;
+}
+
+.el-card__body {
+  padding: 24px;
+}
+
+/* ==================== 标签样式 ==================== */
+
+.el-tag {
+  border-radius: 0.5rem;
+  padding: 4px 12px;
+  font-weight: 500;
+}
+
+.el-tag--success {
+  background-color: #d1fae5;
+  border-color: #10b981;
+  color: #065f46;
+}
+
+.el-tag--danger {
+  background-color: #fee2e2;
+  border-color: #ef4444;
+  color: #991b1b;
+}
+
+.el-tag--warning {
+  background-color: #fef3c7;
+  border-color: #f59e0b;
+  color: #92400e;
+}
+
+.el-tag--info {
+  background-color: #dbeafe;
+  border-color: #3b82f6;
+  color: #1e40af;
+}
+
+/* ==================== 复选框样式 ==================== */
+
+.el-checkbox__input.is-checked .el-checkbox__inner {
+  background-color: #00897b;
+  border-color: #00897b;
+}
+
+.el-checkbox__input.is-checked + .el-checkbox__label {
+  color: #00897b;
+}
+
+.el-checkbox__inner:hover {
+  border-color: #00897b;
+}
+
+.el-checkbox__input.is-focus .el-checkbox__inner {
+  border-color: #00897b;
+}
+
+/* ==================== 单选框样式 ==================== */
+
+.el-radio__input.is-checked .el-radio__inner {
+  background-color: #00897b;
+  border-color: #00897b;
+}
+
+.el-radio__input.is-checked + .el-radio__label {
+  color: #00897b;
+}
+
+/* ==================== 开关样式 ==================== */
+
+.el-switch.is-checked .el-switch__core {
+  background-color: #00897b;
+  border-color: #00897b;
+}
+
+/* ==================== 加载样式 ==================== */
+
+.el-loading-spinner .circular {
+  color: #00897b;
+}
+
+.el-loading-text {
+  color: #6b7280;
+}
+
+/* ==================== 分页样式 ==================== */
+
+.el-pagination button {
+  border-radius: 0.5rem;
+  color: #6b7280;
+}
+
+.el-pagination button:hover {
+  color: #00897b;
+}
+
+.el-pagination .el-pager li {
+  border-radius: 0.5rem;
+  margin: 0 4px;
+}
+
+.el-pagination .el-pager li:hover {
+  color: #00897b;
+}
+
+.el-pagination .el-pager li.is-active {
+  background-color: #00897b;
+  color: #ffffff;
+}
+
+/* ==================== 时间选择器样式 ==================== */
+
+.el-time-panel {
+  border-radius: 0.75rem;
+  border-color: #e5e7eb;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+}
+
+.el-time-spinner__item:hover:not(.disabled):not(.active) {
+  background: #e0f2f1;
+  color: #00897b;
+}
+
+.el-time-spinner__item.active:not(.disabled) {
+  color: #00897b;
+  font-weight: 600;
+}
+
+/* ==================== 滑块样式 ==================== */
+
+.el-slider__bar {
+  background-color: #00897b;
+}
+
+.el-slider__button {
+  border-color: #00897b;
+}
+
+.el-slider__button:hover {
+  border-color: #00796b;
+}
+
+/* ==================== 进度条样式 ==================== */
+
+.el-progress-bar__inner {
+  background-color: #00897b;
+}
+
+/* ==================== 菜单样式 ==================== */
+
+.el-menu {
+  border-right-color: #e5e7eb;
+}
+
+.el-menu-item {
+  color: #4b5563;
+  transition: all 0.2s ease;
+}
+
+.el-menu-item:hover {
+  background-color: #f9fafb;
+  color: #00897b;
+}
+
+.el-menu-item.is-active {
+  color: #00897b;
+  background-color: #e0f2f1;
+  font-weight: 500;
+}
+
+.el-sub-menu__title:hover {
+  background-color: #f9fafb;
+  color: #00897b;
+}
+
+/* ==================== Popconfirm 样式 ==================== */
+
+.el-popconfirm {
+  border-radius: 0.75rem;
+}
+
+/* ==================== Tooltip 样式 ==================== */
+
+.el-tooltip__popper {
+  border-radius: 0.5rem;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+}
+
+.el-tooltip__popper.is-dark {
+  background-color: #1f2937;
+}
+
+/* ==================== 表单验证样式 ==================== */
+
+.el-form-item__error {
+  color: #ef4444;
+}
+
+/* ==================== 禁用状态 ==================== */
+
+.el-button.is-disabled,
+.el-button.is-disabled:hover {
+  background-color: #f3f4f6;
+  border-color: #e5e7eb;
+  color: #9ca3af;
+}
+
+/* ==================== 链接样式 ==================== */
+
+.el-link.el-link--primary {
+  color: #00897b;
+}
+
+.el-link.el-link--primary:hover {
+  color: #00796b;
+}
